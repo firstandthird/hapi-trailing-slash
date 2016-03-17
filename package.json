@@ -4,7 +4,8 @@
   "description": "handles trailing slash issues in hapi",
   "main": "index.js",
   "scripts": {
-    "test": "lab "
+    "test": "lab -t 100 test",
+    "lint": "eslint **/*.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +16,16 @@
   "bugs": {
     "url": "https://github.com/firstandthird/hapi-trailing-slash/issues"
   },
-  "homepage": "https://github.com/firstandthird/hapi-trailing-slash#readme"
+  "homepage": "https://github.com/firstandthird/hapi-trailing-slash#readme",
+  "devDependencies": {
+    "code": "^2.0.1",
+    "eslint": "^1.10.3",
+    "eslint-config-airbnb": "^3.1.0",
+    "eslint-config-firstandthird": "^1.0.0",
+    "hapi": "^8.0.0",
+    "lab": "^7.3.0"
+  },
+  "dependencies": {
+    "lodash": "^3.10.1"
+  }
 }
