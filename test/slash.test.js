@@ -9,31 +9,28 @@ lab.experiment('hapi-trailing-slash', function() {
 
   lab.beforeEach(function(done) {
     server = new Hapi.Server();
-    server.connection({
-      router: {
-      }
-    });
+    server.connection();
 
     server.route([
       {
         method: 'GET',
-        path: '/it/works',
+        path: '/no/slash',
         handler: function(request, reply) {
-          reply('redirects totally working');
+          reply('welcome to the jungle');
         }
       },
       {
         method: 'GET',
-        path: '/newtest',
+        path: '/has/slash/',
         handler: function(request, reply) {
-          reply('vhost redirects totally working ');
+          reply('slither');
         }
       },
       {
         method: 'GET',
         path: '/newtest/{param*2}',
         handler: function(request, reply) {
-          reply('redirects totally working and param passed was ' + request.params.param);
+          reply('sweet child of mine ' + request.params.param);
         }
       }
     ]);
@@ -49,7 +46,51 @@ lab.experiment('hapi-trailing-slash', function() {
   append: It would make a redirect to /foo/ if URL is /foo.
   remove: It would make a redirect to /foo if URL is /foo/.
   */
-  lab.test(' "remove" redirects    /it/works/ -> /it/works', function(done){
+  lab.test(' "append"  /has/slash/ works normally', function(done){
+    server.register({
+      register: module,
+      options: {
+        router: {
+          redirectTrailingSlash: 'append'
+        }
+      }
+    },
+    function(err){
+      server.start(function() {
+        server.inject({
+          method: 'get',
+          url: '/has/slash/'
+        }, function(result) {
+          Code.expect(result.statusCode).to.equal(200);
+          Code.expect(result.payload).to.equal('slither');
+          done();
+        });
+      });
+    });
+  });
+  lab.test(' "append" /has/slash redirects to /has/slash/', function(done){
+    server.register({
+      register: module,
+      options: {
+        router: {
+          redirectTrailingSlash: 'append'
+        }
+      }
+    },
+    function(err){
+      server.start(function() {
+        server.inject({
+          method: 'get',
+          url: '/has/slash'
+        }, function(result) {
+          Code.expect(result.statusCode).to.equal(302);
+          Code.expect(result.headers.location).to.equal('/has/slash/');
+          done();
+        });
+      });
+    });
+  });
+  lab.test(' "remove" /no/slash works normally', function(done){
     server.register({
       register: module,
       options: {
@@ -58,39 +99,85 @@ lab.experiment('hapi-trailing-slash', function() {
         }
       }
     },
-    function(err){
+    function(err) {
       server.start(function() {
         server.inject({
           method: 'get',
-          url: '/it/works/'
+          url: '/no/slash'
+        }, function(result) {
+          Code.expect(result.statusCode).to.equal(200);
+          Code.expect(result.payload).to.equal('welcome to the jungle');
+          done();
+        });
+      });
+    });
+  });
+  lab.test(' "remove" /no/slash/ redirects to /no/slash', function(done){
+    server.register({
+      register: module,
+      options: {
+        router: {
+          redirectTrailingSlash: 'remove'
+        }
+      }
+    },
+    function(err) {
+      server.start(function() {
+        server.inject({
+          method: 'get',
+          url: '/no/slash/'
         }, function(result) {
           Code.expect(result.statusCode).to.equal(302);
-          Code.expect(result.headers.location).to.equal('/it/works');
+          Code.expect(result.headers.location).to.equal('/no/slash');
+          done();
+        });
+      });
+    });
+  });
+  // 'ignore'
+  lab.test(' "ignore" /no/slash/ redirects to /no/slash', function(done){
+    server.register({
+      register: module,
+      options: {
+        router: {
+          redirectTrailingSlash: 'ignore'
+        }
+      }
+    },
+    function(err) {
+      server.start(function() {
+        server.inject({
+          method: 'get',
+          url: '/no/slash/'
+        }, function(result) {
+          Code.expect(result.statusCode).to.equal(302);
+          Code.expect(result.headers.location).to.equal('/no/slash');
+          done();
+        });
+      });
+    });
+  });
+  lab.test(' "ignore" /has/slash redirects to /has/slash/', function(done){
+    server.register({
+      register: module,
+      options: {
+        router: {
+          redirectTrailingSlash: 'ignore'
+        }
+      }
+    },
+    function(err) {
+      server.start(function() {
+        server.inject({
+          method: 'get',
+          url: '/has/slash'
+        }, function(result) {
+          Code.expect(result.statusCode).to.equal(302);
+          Code.expect(result.headers.location).to.equal('/has/slash/');
           done();
         });
       });
     });
   });
 
-  lab.test(' "remove" redirects /it/works -> /it/works', function(done){
-    server.register({
-      register: module,
-      options: {
-        router: {
-          redirectTrailingSlash: 'remove'
-        }
-      }
-    },
-    function(err){
-      server.start(function() {
-        server.inject({
-          method: 'get',
-          url: '/it/works'
-        }, function(result) {
-          Code.expect(result.statusCode).to.equal(200);
-          Code.expect(result.headers.location).to.equal('/it/works');
-          done();
-        });
-      });
-    });
 });
