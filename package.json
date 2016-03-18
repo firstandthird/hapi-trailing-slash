@@ -25,7 +25,5 @@
     "hapi": "^8.0.0",
     "lab": "^7.3.0"
   },
-  "dependencies": {
-    "lodash": "^3.10.1"
-  }
+  "dependencies": {}
 }

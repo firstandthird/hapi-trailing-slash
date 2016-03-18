@@ -1,5 +1,4 @@
 'use strict';
-const _ = require('lodash');
 
 module.exports = (server, options, allDone) => {
   if (!options.method) {
