@@ -91,10 +91,10 @@ lab.experiment('hapi-trailing-slash', () => {
   lab.test(' "append" /has/slash POST redirects with url params ', (done) => {
     server.inject({
       method: 'post',
-      url: '/has/slash/velvet_revolver'
+      url: '/has/slash/velvet_revolver?temp=hi'
     }, (result) => {
       Code.expect(result.statusCode).to.equal(302);
-      Code.expect(result.headers.location).to.equal('/has/slash/velvet_revolver/');
+      Code.expect(result.headers.location).to.equal('/has/slash/velvet_revolver/?temp=hi');
       done();
     });
   });
