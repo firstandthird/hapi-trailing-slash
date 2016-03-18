@@ -15,6 +15,13 @@ lab.experiment('hapi-trailing-slash', function() {
     server.route([
       {
         method: 'GET',
+        path: '/',
+        handler: (request, reply) => {
+          reply('root');
+        }
+      },
+      {
+        method: 'GET',
         path: '/no/slash',
         handler: (request, reply) => {
           reply('welcome to the jungle');
@@ -127,6 +134,17 @@ lab.experiment('hapi-trailing-slash', function() {
       url: '/no/slash/velvet_revolver/?p1=hi'
     }, function(result) {
       Code.expect(result.statusCode).to.equal(404);
+      done();
+    });
+  });
+
+  lab.test(' "remove" / (root path) is not stripped ', (done) => {
+    server.inject({
+      method: 'get',
+      url: '/'
+    }, function(result) {
+      Code.expect(result.statusCode).to.equal(200);
+      Code.expect(result.payload).to.equal('root');
       done();
     });
   });

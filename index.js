@@ -28,7 +28,7 @@ module.exports = (server, options, allDone) => {
   } else if (options.method === 'remove') {
     server.ext('onRequest', (request, reply) => {
       const method = request.method.toLowerCase();
-      if (['get', 'head'].indexOf(method) !== -1 && request.path[request.path.length - 1] === '/') {
+      if (['get', 'head'].indexOf(method) !== -1 && request.path !== '/' && request.path[request.path.length - 1] === '/') {
         const slashlessPath = request.path.replace(/\/$/, '');
         return doRedirect(slashlessPath, request, reply);
       }
