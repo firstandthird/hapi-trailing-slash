@@ -104,10 +104,10 @@ lab.experiment('hapi-trailing-slash', function() {
   lab.test(' "remove" /no/slash POST redirects with url params ', (done) => {
     server.inject({
       method: 'post',
-      url: '/no/slash/velvet_revolver/'
+      url: '/no/slash/velvet_revolver/?p1=hi'
     }, function(result) {
       Code.expect(result.statusCode).to.equal(302);
-      Code.expect(result.headers.location).to.equal('/no/slash/velvet_revolver');
+      Code.expect(result.headers.location).to.equal('/no/slash/velvet_revolver?p1=hi');
       done();
     });
   });
