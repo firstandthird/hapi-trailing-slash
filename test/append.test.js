@@ -28,7 +28,7 @@ lab.experiment('hapi-trailing-slash', () => {
         }
       },
       {
-        method: 'POST',
+        method: 'GET',
         path: '/has/slash/{band}/',
         handler: (request, reply) => {
           if (request.params.band === 'gnr') {
@@ -77,9 +77,9 @@ lab.experiment('hapi-trailing-slash', () => {
       done();
     });
   });
-  lab.test(' "append"  /has/slash/ POST works with url params', (done) => {
+  lab.test(' "append"  /has/slash/ GET works with url params', (done) => {
     server.inject({
-      method: 'post',
+      method: 'get',
       url: '/has/slash/velvet_revolver/'
     }, (result) => {
       Code.expect(result.statusCode).to.equal(200);
@@ -88,13 +88,22 @@ lab.experiment('hapi-trailing-slash', () => {
     });
   });
 
-  lab.test(' "append" /has/slash POST redirects with url params ', (done) => {
+  lab.test(' "append" /has/slash GET redirects with url params ', (done) => {
     server.inject({
-      method: 'post',
+      method: 'get',
       url: '/has/slash/velvet_revolver?temp=hi'
     }, (result) => {
       Code.expect(result.statusCode).to.equal(302);
       Code.expect(result.headers.location).to.equal('/has/slash/velvet_revolver/?temp=hi');
+      done();
+    });
+  });
+  lab.test(' "append" /has/slash POST redirect is ignored ', (done) => {
+    server.inject({
+      method: 'post',
+      url: '/has/slash/velvet_revolver?temp=hi'
+    }, (result) => {
+      Code.expect(result.statusCode).to.equal(404);
       done();
     });
   });
