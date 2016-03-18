@@ -2,7 +2,7 @@
 
 module.exports = (server, options, allDone) => {
   if (!options.method) {
-    throw new Error('hapi-trailing-slash plugin registered without specifiying which method to use');
+    return allDone(new Error('hapi-trailing-slash plugin registered without specifiying which method to use'));
   }
   const logRedirect = (from, to) => {
     if (options.verbose) {
