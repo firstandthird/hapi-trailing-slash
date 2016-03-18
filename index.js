@@ -6,8 +6,7 @@ module.exports = (server, options, allDone) => {
   }
   const logRedirect = (from, to) => {
     if (options.verbose) {
-      const string = `redirecting from ${from} to ${to}`;
-      server.log(['hapi-trailing-slash', 'redirect'], string);
+      server.log(['hapi-trailing-slash', 'redirect'], { from, to });
     }
   };
 
