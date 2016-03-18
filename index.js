@@ -1,8 +1,23 @@
-'use strict'
+'use strict';
 const _ = require('lodash');
 
+
+const ParamMatchingRegEx = new RegExp('(\\{)((?:[a-z][a-z0-9_]*))(\\*)(\\d+)(\\})', 'i');
+const replaceRouteParamWithValues = (route, paramName, paramValue) => {
+  // replace the most-common types of param:
+  route = route.replace('{' + paramName + '}', paramValue)
+  .replace('{' + paramName + '?}', paramValue)
+  .replace('{' + paramName + '*}', paramValue);
+  // match and replaces params of the form "{myParam*2}, {myParam*4}" as well:
+  const matchedValue = _.first(ParamMatchingRegEx.exec(route));
+  if (matchedValue) {
+    return route.replace(matchedValue, paramValue);
+  }
+  return route;
+};
+
 module.exports = (server, options, allDone) => {
-  if (!options.method){
+  if (!options.method) {
     throw new Error('hapi-trailing-slash plugin registered without specifiying which method to use');
   }
   const logRedirect = (from, to) => {
@@ -58,7 +73,7 @@ module.exports = (server, options, allDone) => {
     });
   } else if (options.method === 'remove') {
     server.ext('onRequest', (request, reply) => {
-      if (request.path[request.path.length-1] === '/') {
+      if (request.path[request.path.length - 1] === '/') {
         const slashlessPath = request.path.replace(/\/$/, '');
         return doRedirect(slashlessPath, request, reply);
       }
@@ -72,17 +87,3 @@ module.exports.attributes = {
   name: 'hapi-trailing-slash',
   pkg: require('./package.json')
 };
-
-const ParamMatchingRegEx = new RegExp('(\\{)((?:[a-z][a-z0-9_]*))(\\*)(\\d+)(\\})' , 'i');
-const replaceRouteParamWithValues = (route, paramName, paramValue) => {
-  // replace the most-common types of param:
-  route = route.replace('{' + paramName + '}', paramValue)
-  .replace('{' + paramName + '?}', paramValue)
-  .replace('{' + paramName + '*}', paramValue);
-  // match and replaces params of the form "{myParam*2}, {myParam*4}" as well:
-  let matchedValue = _.first(ParamMatchingRegEx.exec(route));
-  if (matchedValue) {
-    return route.replace(matchedValue, paramValue);
-  }
-  return route;
-}
