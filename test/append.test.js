@@ -77,6 +77,16 @@ lab.experiment('hapi-trailing-slash', () => {
       done();
     });
   });
+  lab.test(' "append" HEAD /has/slash redirects to /has/slash/', (done) => {
+    server.inject({
+      method: 'head',
+      url: '/has/slash'
+    }, (result) => {
+      Code.expect(result.statusCode).to.equal(302);
+      Code.expect(result.headers.location).to.equal('/has/slash/');
+      done();
+    });
+  });
   lab.test(' "append"  /has/slash/ GET works with url params', (done) => {
     server.inject({
       method: 'get',

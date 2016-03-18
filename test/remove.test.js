@@ -90,6 +90,16 @@ lab.experiment('hapi-trailing-slash', function() {
       done();
     });
   });
+  lab.test(' "remove" HEAD /no/slash/ redirects to /no/slash', (done) => {
+    server.inject({
+      method: 'head',
+      url: '/no/slash/'
+    }, function(result) {
+      Code.expect(result.statusCode).to.equal(302);
+      Code.expect(result.headers.location).to.equal('/no/slash');
+      done();
+    });
+  });
   lab.test(' "remove" /no/slash GET works normally ', (done) => {
     server.inject({
       method: 'get',
