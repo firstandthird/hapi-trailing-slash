@@ -1,6 +1,6 @@
 {
   "name": "hapi-trailing-slash",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "handles trailing slash issues in hapi",
   "main": "index.js",
   "scripts": {
@@ -11,8 +11,8 @@
     "type": "git",
     "url": "git+https://github.com/firstandthird/hapi-trailing-slash.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "First+Third",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/firstandthird/hapi-trailing-slash/issues"
   },
