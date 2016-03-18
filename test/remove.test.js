@@ -1,121 +1,76 @@
-var Code = require('code');   // assertion library
-var Lab = require('lab');
-var lab = exports.lab = Lab.script();
-var Hapi = require('hapi');
-var module = require("../index.js");
+'use strict';
+const Code = require('code');   // assertion library
+const Lab = require('lab');
+const lab = exports.lab = Lab.script();
+const Hapi = require('hapi');
+const theModule = require('../index.js');
 
 lab.experiment('hapi-trailing-slash', function() {
-  var server;
+  let server;
 
+  lab.beforeEach((done) => {
+    server = new Hapi.Server();
+    server.connection();
 
-    lab.beforeEach(function(done) {
-      server = new Hapi.Server();
-      server.connection();
-
-      server.route([
-        {
-          method: 'GET',
-          path: '/no/slash',
-          handler: function(request, reply) {
-            reply('welcome to the jungle');
-          }
-        },
-        {
-          method: 'GET',
-          path: '/has/slash/',
-          handler: function(request, reply) {
+    server.route([
+      {
+        method: 'GET',
+        path: '/no/slash',
+        handler: (request, reply) => {
+          reply('welcome to the jungle');
+        }
+      },
+      {
+        method: 'POST',
+        path: '/no/slash/{band}',
+        handler: (request, reply) => {
+          if (request.params.band === 'gnr') {
+            reply('sweet child of mine ');
+          } else if (request.params.band === 'velvet_revolver') {
             reply('slither');
-          }
-        },
-        {
-          method: 'POST',
-          path: '/has/slash/{band}/',
-          handler: function(request, reply) {
-            if (request.query.band === 'gnr') {
-              reply('sweet child of mine ');
-            } else if (request.query.band === 'velvet_revolver') {
-              reply('slither');
-            } else {
-              reply('not found');
-            }
+          } else {
+            reply('not found');
           }
         }
-      ]);
-
-      server.register({
-        register: module,
-        options: {
-          method: 'remove',
-          verbose: true
+      },
+      {
+        method: 'GET',
+        path: '/has/slash/',
+        handler: (request, reply) => {
+          reply('slither');
         }
-      }, function(err) {
-        server.start(done);
-      });
-    });
-
-    lab.beforeEach(function(done) {
-      server = new Hapi.Server();
-      server.connection();
-
-      server.route([
-        {
-          method: 'GET',
-          path: '/no/slash',
-          handler: function(request, reply) {
-            reply('welcome to the jungle');
-          }
-        },
-        {
-          method: 'POST',
-          path: '/no/slash/{band}',
-          handler: function(request, reply) {
-            if (request.params.band === 'gnr') {
-              reply('sweet child of mine ');
-            } else if (request.params.band === 'velvet_revolver') {
-              reply('slither');
-            } else {
-              reply('not found');
-            }
-          }
-        },
-        {
-          method: 'GET',
-          path: '/has/slash/',
-          handler: function(request, reply) {
+      },
+      {
+        method: 'POST',
+        path: '/has/slash/{band}/',
+        handler: (request, reply) => {
+          if (request.params.band === 'gnr') {
+            reply('sweet child of mine ');
+          } else if (request.params.band === 'velvet_revolver') {
             reply('slither');
-          }
-        },
-        {
-          method: 'POST',
-          path: '/has/slash/{band}/',
-          handler: function(request, reply) {
-            if (request.params.band === 'gnr') {
-              reply('sweet child of mine ');
-            } else if (request.params.band === 'velvet_revolver') {
-              reply('slither');
-            } else {
-              reply('not found');
-            }
+          } else {
+            reply('not found');
           }
         }
-      ]);
+      }
+    ]);
 
-      server.register({
-        register: module,
-        options: {
-          method: 'remove',
-          verbose: true
-        }
-      }, function(err) {
-        server.start(done);
-      });
+    server.register({
+      register: theModule,
+      options: {
+        method: 'remove',
+        verbose: true
+      }
+    }, function(err) {
+      server.start(done);
     });
+  });
 
-  lab.afterEach(function(done){
+  lab.afterEach((done) => {
     server.stop(done);
   });
 
-  lab.test(' "remove" /no/slash works normally', function(done){
+  lab.test(' "remove" /no/slash works normally', (done) => {
     server.inject({
       method: 'get',
       url: '/no/slash'
@@ -124,9 +79,8 @@ lab.experiment('hapi-trailing-slash', function() {
       Code.expect(result.payload).to.equal('welcome to the jungle');
       done();
     });
-
   });
-  lab.test(' "remove" /no/slash/ redirects to /no/slash', function(done){
+  lab.test(' "remove" /no/slash/ redirects to /no/slash', (done) => {
     server.inject({
       method: 'get',
       url: '/no/slash/'
@@ -136,7 +90,7 @@ lab.experiment('hapi-trailing-slash', function() {
       done();
     });
   });
-  lab.test(' "remove" /no/slash POST works normally ', function(done){
+  lab.test(' "remove" /no/slash POST works normally ', (done) => {
     server.inject({
       method: 'post',
       url: '/no/slash/velvet_revolver'
@@ -147,7 +101,7 @@ lab.experiment('hapi-trailing-slash', function() {
     });
   });
 
-  lab.test(' "remove" /no/slash POST redirects with url params ', function(done){
+  lab.test(' "remove" /no/slash POST redirects with url params ', (done) => {
     server.inject({
       method: 'post',
       url: '/no/slash/velvet_revolver/'
