@@ -20,7 +20,7 @@ module.exports = (server, options, allDone) => {
 
   if (options.method === 'append') {
     server.ext('onRequest', (request, reply) => {
-      if (request.method === 'get' && request.path[request.path.length - 1] !== '/') {
+      if (request.method.toLowerCase() === 'get' && request.path[request.path.length - 1] !== '/') {
         const slashedPath = request.path + '/';
         return doRedirect(slashedPath, request, reply);
       }
@@ -28,7 +28,7 @@ module.exports = (server, options, allDone) => {
     });
   } else if (options.method === 'remove') {
     server.ext('onRequest', (request, reply) => {
-      if (request.method === 'get' && request.path[request.path.length - 1] === '/') {
+      if (request.method.toLowerCase() === 'get' && request.path[request.path.length - 1] === '/') {
         const slashlessPath = request.path.replace(/\/$/, '');
         return doRedirect(slashlessPath, request, reply);
       }
