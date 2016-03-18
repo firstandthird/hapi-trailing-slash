@@ -11,7 +11,7 @@ module.exports = (server, options, allDone) => {
   };
 
   const doRedirect = (path, originalRequest, originalReply) => {
-    let redirectTo = originalRequest.url.search ? path + originalRequest.url.search : path;
+    const redirectTo = originalRequest.url.search ? path + originalRequest.url.search : path;
     logRedirect(originalRequest.path, redirectTo);
     return originalReply.redirect(redirectTo);
   };
