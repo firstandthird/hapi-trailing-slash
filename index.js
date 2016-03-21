@@ -1,19 +1,24 @@
 'use strict';
 
 module.exports = (server, options, allDone) => {
+  options = options || {};
   if (!options.method) {
     return allDone(new Error('hapi-trailing-slash plugin registered without specifiying which method to use'));
   }
-  const logRedirect = (from, to) => {
-    if (options.verbose) {
-      server.log(['hapi-trailing-slash', 'redirect'], { from, to });
-    }
-  };
+  options.statusCode = options.statusCode || 301;
 
-  const doRedirect = (path, originalRequest, originalReply) => {
-    const redirectTo = originalRequest.url.search ? path + originalRequest.url.search : path;
-    logRedirect(originalRequest.path, redirectTo);
-    return originalReply.redirect(redirectTo);
+  const doRedirect = (path, request, reply) => {
+    const redirectTo = request.url.search ? path + request.url.search : path;
+    if (options.verbose) {
+      server.log(['hapi-trailing-slash', 'redirect'], {
+        remoteAddress: `${request.info.remoteAddress}:${request.info.remotePort}`,
+        host: request.info.host,
+        referrer: request.info.referrer,
+        from: request.path,
+        to: redirectTo
+      });
+    }
+    return reply.redirect(redirectTo).code(options.statusCode);
   };
 
   if (options.method === 'append') {
