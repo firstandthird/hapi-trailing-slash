@@ -1,4 +1,4 @@
-# hapi-trailing-slash #
+# hapi-trailing-slash # [![Build Status](https://travis-ci.org/firstandthird/hapi-trailing-slash.svg?branch=master)](https://travis-ci.org/firstandthird/hapi-trailing-slash)
 
 ## Handles common trailing slash issues for incoming URLs ##
 
