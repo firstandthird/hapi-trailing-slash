@@ -72,7 +72,7 @@ lab.experiment('hapi-trailing-slash', () => {
       method: 'get',
       url: '/has/slash'
     }, (result) => {
-      Code.expect(result.statusCode).to.equal(302);
+      Code.expect(result.statusCode).to.equal(301);
       Code.expect(result.headers.location).to.equal('/has/slash/');
       done();
     });
@@ -82,7 +82,7 @@ lab.experiment('hapi-trailing-slash', () => {
       method: 'head',
       url: '/has/slash'
     }, (result) => {
-      Code.expect(result.statusCode).to.equal(302);
+      Code.expect(result.statusCode).to.equal(301);
       Code.expect(result.headers.location).to.equal('/has/slash/');
       done();
     });
@@ -103,7 +103,7 @@ lab.experiment('hapi-trailing-slash', () => {
       method: 'get',
       url: '/has/slash/velvet_revolver?temp=hi'
     }, (result) => {
-      Code.expect(result.statusCode).to.equal(302);
+      Code.expect(result.statusCode).to.equal(301);
       Code.expect(result.headers.location).to.equal('/has/slash/velvet_revolver/?temp=hi');
       done();
     });
