@@ -18,12 +18,12 @@
   },
   "homepage": "https://github.com/firstandthird/hapi-trailing-slash#readme",
   "devDependencies": {
-    "code": "^2.0.1",
-    "eslint": "^1.10.3",
-    "eslint-config-airbnb": "^3.1.0",
-    "eslint-config-firstandthird": "^1.0.0",
-    "hapi": "^8.0.0",
-    "lab": "^7.3.0"
+    "code": "^4.0.0",
+    "eslint": "^3.12.2",
+    "eslint-config-airbnb": "^13.0.0",
+    "eslint-config-firstandthird": "^3.1.0",
+    "hapi": "^16.0.2",
+    "lab": "^11.2.1"
   },
   "dependencies": {}
 }
