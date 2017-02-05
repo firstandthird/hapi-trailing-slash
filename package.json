@@ -20,7 +20,7 @@
   "devDependencies": {
     "code": "^4.0.0",
     "eslint": "^3.12.2",
-    "eslint-config-airbnb": "^13.0.0",
+    "eslint-config-airbnb": "^14.1.0",
     "eslint-config-firstandthird": "^3.1.0",
     "hapi": "^16.0.2",
     "lab": "^11.2.1"
