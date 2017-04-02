@@ -48,7 +48,10 @@ lab.experiment('hapi-trailing-slash', () => {
         method: 'append',
         verbose: true
       }
-    }, function(err) {
+    }, (err) => {
+      if (err) {
+        throw err;
+      }
       server.start(done);
     });
   });
