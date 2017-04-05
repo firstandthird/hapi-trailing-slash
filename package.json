@@ -1,6 +1,6 @@
 {
   "name": "hapi-trailing-slash",
-  "version": "0.0.3",
+  "version": "1.0.0",
   "description": "handles trailing slash issues in hapi",
   "main": "index.js",
   "eslintConfig": {
