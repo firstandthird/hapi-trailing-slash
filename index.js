@@ -13,6 +13,7 @@ module.exports = (server, options, allDone) => {
       server.log(['hapi-trailing-slash', 'redirect'], {
         remoteAddress: `${request.info.remoteAddress}:${request.info.remotePort}`,
         host: request.info.host,
+        userAgent: request.headers['user-agent'],
         referrer: request.info.referrer,
         from: request.path,
         to: redirectTo
@@ -25,7 +26,7 @@ module.exports = (server, options, allDone) => {
     server.ext('onRequest', (request, reply) => {
       const method = request.method.toLowerCase();
       if (['get', 'head'].indexOf(method) !== -1 && request.path[request.path.length - 1] !== '/') {
-        const slashedPath = request.path + '/';
+        const slashedPath = `${request.path}/`;
         return doRedirect(slashedPath, request, reply);
       }
       return reply.continue();

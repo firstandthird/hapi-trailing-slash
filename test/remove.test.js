@@ -5,7 +5,7 @@ const lab = exports.lab = Lab.script();
 const Hapi = require('hapi');
 const theModule = require('../index.js');
 
-lab.experiment('hapi-trailing-slash', function() {
+lab.experiment('hapi-trailing-slash', () => {
   let server;
 
   lab.beforeEach((done) => {
@@ -68,7 +68,10 @@ lab.experiment('hapi-trailing-slash', function() {
         method: 'remove',
         verbose: true
       }
-    }, function(err) {
+    }, (err) => {
+      if (err) {
+        throw err;
+      }
       server.start(done);
     });
   });
@@ -81,7 +84,7 @@ lab.experiment('hapi-trailing-slash', function() {
     server.inject({
       method: 'get',
       url: '/no/slash'
-    }, function(result) {
+    }, (result) => {
       Code.expect(result.statusCode).to.equal(200);
       Code.expect(result.payload).to.equal('welcome to the jungle');
       done();
@@ -91,7 +94,7 @@ lab.experiment('hapi-trailing-slash', function() {
     server.inject({
       method: 'get',
       url: '/no/slash/'
-    }, function(result) {
+    }, (result) => {
       Code.expect(result.statusCode).to.equal(301);
       Code.expect(result.headers.location).to.equal('/no/slash');
       done();
@@ -101,7 +104,7 @@ lab.experiment('hapi-trailing-slash', function() {
     server.inject({
       method: 'head',
       url: '/no/slash/'
-    }, function(result) {
+    }, (result) => {
       Code.expect(result.statusCode).to.equal(301);
       Code.expect(result.headers.location).to.equal('/no/slash');
       done();
@@ -111,7 +114,7 @@ lab.experiment('hapi-trailing-slash', function() {
     server.inject({
       method: 'get',
       url: '/no/slash/velvet_revolver'
-    }, function(result) {
+    }, (result) => {
       Code.expect(result.statusCode).to.equal(200);
       Code.expect(result.payload).to.equal('slither');
       done();
@@ -122,7 +125,7 @@ lab.experiment('hapi-trailing-slash', function() {
     server.inject({
       method: 'get',
       url: '/no/slash/velvet_revolver/?p1=hi'
-    }, function(result) {
+    }, (result) => {
       Code.expect(result.statusCode).to.equal(301);
       Code.expect(result.headers.location).to.equal('/no/slash/velvet_revolver?p1=hi');
       done();
@@ -132,7 +135,7 @@ lab.experiment('hapi-trailing-slash', function() {
     server.inject({
       method: 'post',
       url: '/no/slash/velvet_revolver/?p1=hi'
-    }, function(result) {
+    }, (result) => {
       Code.expect(result.statusCode).to.equal(404);
       done();
     });
@@ -142,7 +145,7 @@ lab.experiment('hapi-trailing-slash', function() {
     server.inject({
       method: 'get',
       url: '/'
-    }, function(result) {
+    }, (result) => {
       Code.expect(result.statusCode).to.equal(200);
       Code.expect(result.payload).to.equal('root');
       done();
