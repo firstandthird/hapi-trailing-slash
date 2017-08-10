@@ -1,5 +1,5 @@
 'use strict';
-
+const useragent = require('useragent');
 module.exports = (server, options, allDone) => {
   options = options || {};
   if (!options.method) {
@@ -13,7 +13,7 @@ module.exports = (server, options, allDone) => {
       server.log(['hapi-trailing-slash', 'redirect'], {
         remoteAddress: `${request.info.remoteAddress}:${request.info.remotePort}`,
         host: request.info.host,
-        userAgent: request.headers['user-agent'],
+        userAgent: useragent.parse(request.headers['user-agent']).toString(),
         referrer: request.info.referrer,
         from: request.path,
         to: redirectTo
