@@ -13,7 +13,8 @@ module.exports = (server, options, allDone) => {
       server.log(['hapi-trailing-slash', 'redirect'], {
         remoteAddress: `${request.info.remoteAddress}:${request.info.remotePort}`,
         host: request.info.host,
-        userAgent: useragent.parse(request.headers['user-agent']).toString(),
+        userAgent: request.headers['user-agent'],
+        browser: useragent.parse(request.headers['user-agent']).toString(),
         referrer: request.info.referrer,
         from: request.path,
         to: redirectTo
