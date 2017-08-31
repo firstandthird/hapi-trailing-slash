@@ -122,7 +122,7 @@ lab.experiment('hapi-trailing-slash', () => {
     });
   });
 
-  lab.test('processes routes that already are defined after response', (allDone) => {
+  lab.test('processes routes on preResponse ', (allDone) => {
     let called = 0;
     async.autoInject({
       route(done) {
