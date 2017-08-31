@@ -123,14 +123,12 @@ lab.experiment('hapi-trailing-slash', () => {
   });
 
   lab.test('processes routes on preResponse ', (allDone) => {
-    let called = 0;
     async.autoInject({
       route(done) {
         server.route({
           method: 'POST',
-          path: '/has/slash/post/',
+          path: '/myRoute/',
           handler: (request, reply) => {
-            called++;
             reply('2017');
           }
         });
@@ -139,7 +137,7 @@ lab.experiment('hapi-trailing-slash', () => {
       injectHit(route, done) {
         server.inject({
           method: 'POST',
-          url: '/has/slash/post/'
+          url: '/myRoute/'
         }, (result) => {
           Code.expect(result.statusCode).to.equal(200);
           done();
@@ -147,25 +145,30 @@ lab.experiment('hapi-trailing-slash', () => {
       },
       injectMiss(route, done) {
         server.inject({
-          method: 'GET',
+          method: 'POST',
           url: '/post/'
-        }, (result2) => {
-          Code.expect(result2.statusCode).to.equal(404);
+        }, (result) => {
+          Code.expect(result.statusCode).to.equal(404);
+          done();
+        });
+      },
+      injectMiss2(route, done) {
+        server.inject({
+          method: 'POST',
+          url: '/myRoute'
+        }, (result) => {
+          Code.expect(result.statusCode).to.equal(404);
           done();
         });
       },
       injectRedirect(route, done) {
         server.inject({
           method: 'GET',
-          url: '/has/slash/post'
-        }, (result2) => {
-          Code.expect(result2.statusCode).to.equal(301);
+          url: '/myRoute'
+        }, (result) => {
+          Code.expect(result.statusCode).to.equal(301);
           done();
         });
-      },
-      verify(injectRedirect, injectMiss, injectHit, done) {
-        Code.expect(called).to.equal(1);
-        done();
       }
     }, allDone);
   });
