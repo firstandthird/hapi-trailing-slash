@@ -123,6 +123,11 @@ lab.experiment('hapi-trailing-slash', () => {
   });
 
   lab.test('processes routes on preResponse ', (allDone) => {
+    let called = 0;
+    server.ext('onRequest', (request, reply) => {
+      called++;
+      reply.continue();
+    });
     async.autoInject({
       route(done) {
         server.route({
@@ -169,6 +174,10 @@ lab.experiment('hapi-trailing-slash', () => {
           Code.expect(result.statusCode).to.equal(301);
           done();
         });
+      },
+      verify(injectMiss, injectHit, injectMiss2, injectRedirect, done) {
+        Code.expect(called).to.equal(4);
+        done();
       }
     }, allDone);
   });
