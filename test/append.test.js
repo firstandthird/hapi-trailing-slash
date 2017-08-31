@@ -4,6 +4,7 @@ const Lab = require('lab');
 const lab = exports.lab = Lab.script();
 const Hapi = require('hapi');
 const theModule = require('../index.js');
+const async = require('async');
 
 lab.experiment('hapi-trailing-slash', () => {
   let server;
@@ -119,5 +120,53 @@ lab.experiment('hapi-trailing-slash', () => {
       Code.expect(result.statusCode).to.equal(404);
       done();
     });
+  });
+
+  lab.test('processes routes that already are defined after response', (allDone) => {
+    let called = 0;
+    async.autoInject({
+      route(done) {
+        server.route({
+          method: 'POST',
+          path: '/has/slash/post/',
+          handler: (request, reply) => {
+            called++;
+            reply('2017');
+          }
+        });
+        done();
+      },
+      injectHit(route, done) {
+        server.inject({
+          method: 'POST',
+          url: '/has/slash/post/'
+        }, (result) => {
+          Code.expect(result.statusCode).to.equal(200);
+          done();
+        });
+      },
+      injectMiss(route, done) {
+        server.inject({
+          method: 'GET',
+          url: '/post/'
+        }, (result2) => {
+          Code.expect(result2.statusCode).to.equal(404);
+          done();
+        });
+      },
+      injectRedirect(route, done) {
+        server.inject({
+          method: 'GET',
+          url: '/has/slash/post'
+        }, (result2) => {
+          Code.expect(result2.statusCode).to.equal(301);
+          done();
+        });
+      },
+      verify(injectRedirect, injectMiss, injectHit, done) {
+        Code.expect(called).to.equal(1);
+        done();
+      }
+    }, allDone);
   });
 });
