@@ -24,7 +24,7 @@ module.exports = (server, options, allDone) => {
   };
 
   if (options.method === 'append') {
-    server.ext('onRequest', (request, reply) => {
+    server.ext('onPreResponse', (request, reply) => {
       const method = request.method.toLowerCase();
       if (['get', 'head'].indexOf(method) !== -1 && request.path[request.path.length - 1] !== '/') {
         const slashedPath = `${request.path}/`;
@@ -33,7 +33,7 @@ module.exports = (server, options, allDone) => {
       return reply.continue();
     });
   } else if (options.method === 'remove') {
-    server.ext('onRequest', (request, reply) => {
+    server.ext('onPreResponse', (request, reply) => {
       const method = request.method.toLowerCase();
       if (['get', 'head'].indexOf(method) !== -1 && request.path !== '/' && request.path[request.path.length - 1] === '/') {
         const slashlessPath = request.path.replace(/\/$/, '');
