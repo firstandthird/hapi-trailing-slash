@@ -132,7 +132,7 @@ lab.experiment('hapi-trailing-slash', () => {
       route(done) {
         server.route({
           method: 'POST',
-          path: '/myRoute/',
+          path: '/myRoute',
           handler: (request, reply) => {
             reply('2017');
           }
@@ -142,7 +142,7 @@ lab.experiment('hapi-trailing-slash', () => {
       injectHit(route, done) {
         server.inject({
           method: 'POST',
-          url: '/myRoute/'
+          url: '/myRoute'
         }, (result) => {
           Code.expect(result.statusCode).to.equal(200);
           done();
@@ -160,7 +160,7 @@ lab.experiment('hapi-trailing-slash', () => {
       injectMiss2(route, done) {
         server.inject({
           method: 'POST',
-          url: '/myRoute'
+          url: '/myRoute/'
         }, (result) => {
           Code.expect(result.statusCode).to.equal(404);
           done();
