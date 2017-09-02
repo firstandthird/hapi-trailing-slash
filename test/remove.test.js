@@ -81,6 +81,16 @@ lab.experiment('hapi-trailing-slash', () => {
   });
 
   lab.test(' "remove" /no/slash works normally', (done) => {
+    server.inject({
+      method: 'get',
+      url: '/no/slash'
+    }, (result) => {
+      Code.expect(result.statusCode).to.equal(200);
+      Code.expect(result.payload).to.equal('welcome to the jungle');
+      done();
+    });
+  });
+  lab.test(' "remove" /no/slash/ redirects to /no/slash', (done) => {
     let called = 0;
     server.ext('onRequest', (request, reply) => {
       called++;
@@ -88,21 +98,11 @@ lab.experiment('hapi-trailing-slash', () => {
     });
     server.inject({
       method: 'get',
-      url: '/no/slash'
-    }, (result) => {
-      Code.expect(result.statusCode).to.equal(200);
-      Code.expect(result.payload).to.equal('welcome to the jungle');
-      Code.expect(called).to.equal(1);
-      done();
-    });
-  });
-  lab.test(' "remove" /no/slash/ redirects to /no/slash', (done) => {
-    server.inject({
-      method: 'get',
       url: '/no/slash/'
     }, (result) => {
       Code.expect(result.statusCode).to.equal(301);
       Code.expect(result.headers.location).to.equal('/no/slash');
+      Code.expect(called).to.equal(1);
       done();
     });
   });
@@ -116,10 +116,10 @@ lab.experiment('hapi-trailing-slash', () => {
       done();
     });
   });
-  lab.test(' "remove" /no/slash GET works normally ', (done) => {
+  lab.test(' "remove" /no/slash GET works normally with route params', (done) => {
     server.inject({
       method: 'get',
-      url: '/no/slash/velvet_revolver'
+      url: '/no/slash/velvet_revolver?p1=hi'
     }, (result) => {
       Code.expect(result.statusCode).to.equal(200);
       Code.expect(result.payload).to.equal('slither');

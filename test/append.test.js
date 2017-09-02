@@ -70,7 +70,7 @@ lab.experiment('hapi-trailing-slash', () => {
       done();
     });
   });
-  lab.test(' "append" /has/slash redirects to /has/slash/', (done) => {
+  lab.test(' "append" GET /has/slash redirects to /has/slash/', (done) => {
     server.inject({
       method: 'get',
       url: '/has/slash'
