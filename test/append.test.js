@@ -4,7 +4,6 @@ const Lab = require('lab');
 const lab = exports.lab = Lab.script();
 const Hapi = require('hapi');
 const theModule = require('../index.js');
-const async = require('async');
 
 lab.experiment('hapi-trailing-slash', () => {
   let server;
@@ -120,65 +119,5 @@ lab.experiment('hapi-trailing-slash', () => {
       Code.expect(result.statusCode).to.equal(404);
       done();
     });
-  });
-
-  lab.test('processes routes on preResponse ', (allDone) => {
-    let called = 0;
-    server.ext('onRequest', (request, reply) => {
-      called++;
-      reply.continue();
-    });
-    async.autoInject({
-      route(done) {
-        server.route({
-          method: 'POST',
-          path: '/myRoute',
-          handler: (request, reply) => {
-            reply('2017');
-          }
-        });
-        done();
-      },
-      injectHit(route, done) {
-        server.inject({
-          method: 'POST',
-          url: '/myRoute'
-        }, (result) => {
-          Code.expect(result.statusCode).to.equal(200);
-          done();
-        });
-      },
-      injectMiss(route, done) {
-        server.inject({
-          method: 'POST',
-          url: '/post/'
-        }, (result) => {
-          Code.expect(result.statusCode).to.equal(404);
-          done();
-        });
-      },
-      injectMiss2(route, done) {
-        server.inject({
-          method: 'POST',
-          url: '/myRoute/'
-        }, (result) => {
-          Code.expect(result.statusCode).to.equal(404);
-          done();
-        });
-      },
-      injectRedirect(route, done) {
-        server.inject({
-          method: 'GET',
-          url: '/myRoute'
-        }, (result) => {
-          Code.expect(result.statusCode).to.equal(301);
-          done();
-        });
-      },
-      verify(injectMiss, injectHit, injectMiss2, injectRedirect, done) {
-        Code.expect(called).to.equal(4);
-        done();
-      }
-    }, allDone);
   });
 });

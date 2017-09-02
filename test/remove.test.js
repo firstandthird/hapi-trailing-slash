@@ -3,7 +3,6 @@ const Code = require('code');   // assertion library
 const Lab = require('lab');
 const lab = exports.lab = Lab.script();
 const Hapi = require('hapi');
-const async = require('async');
 const theModule = require('../index.js');
 
 lab.experiment('hapi-trailing-slash', () => {
@@ -82,12 +81,18 @@ lab.experiment('hapi-trailing-slash', () => {
   });
 
   lab.test(' "remove" /no/slash works normally', (done) => {
+    let called = 0;
+    server.ext('onRequest', (request, reply) => {
+      called++;
+      reply.continue();
+    });
     server.inject({
       method: 'get',
       url: '/no/slash'
     }, (result) => {
       Code.expect(result.statusCode).to.equal(200);
       Code.expect(result.payload).to.equal('welcome to the jungle');
+      Code.expect(called).to.equal(1);
       done();
     });
   });
@@ -151,65 +156,5 @@ lab.experiment('hapi-trailing-slash', () => {
       Code.expect(result.payload).to.equal('root');
       done();
     });
-  });
-
-  lab.test('processes routes on preResponse ', (allDone) => {
-    let called = 0;
-    server.ext('onRequest', (request, reply) => {
-      called++;
-      reply.continue();
-    });
-    async.autoInject({
-      route(done) {
-        server.route({
-          method: 'POST',
-          path: '/myRoute/',
-          handler: (request, reply) => {
-            reply('2017');
-          }
-        });
-        done();
-      },
-      injectHit(route, done) {
-        server.inject({
-          method: 'POST',
-          url: '/myRoute/'
-        }, (result) => {
-          Code.expect(result.statusCode).to.equal(200);
-          done();
-        });
-      },
-      injectMiss(route, done) {
-        server.inject({
-          method: 'POST',
-          url: '/post/'
-        }, (result) => {
-          Code.expect(result.statusCode).to.equal(404);
-          done();
-        });
-      },
-      injectMiss2(route, done) {
-        server.inject({
-          method: 'POST',
-          url: '/myRoute'
-        }, (result) => {
-          Code.expect(result.statusCode).to.equal(404);
-          done();
-        });
-      },
-      injectRedirect(route, done) {
-        server.inject({
-          method: 'GET',
-          url: '/myRoute/'
-        }, (result) => {
-          Code.expect(result.statusCode).to.equal(301);
-          done();
-        });
-      },
-      verify(injectMiss, injectHit, injectMiss2, injectRedirect, done) {
-        Code.expect(called).to.equal(4);
-        done();
-      }
-    }, allDone);
   });
 });
