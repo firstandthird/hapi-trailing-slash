@@ -70,6 +70,24 @@ lab.experiment('hapi-trailing-slash', () => {
       done();
     });
   });
+  lab.test(' "append" /has/slash works normally if that route is specified', (done) => {
+    server.route({
+      path: '/has/slash',
+      method: 'get',
+      handler(request, reply) {
+        return reply('slither');
+      }
+    });
+    server.inject({
+      method: 'get',
+      url: '/has/slash'
+    }, (result) => {
+      Code.expect(result.statusCode).to.equal(200);
+      Code.expect(result.payload).to.equal('slither');
+      done();
+    });
+  });
+
   lab.test(' "append" GET /has/slash redirects to /has/slash/', (done) => {
     server.inject({
       method: 'get',
