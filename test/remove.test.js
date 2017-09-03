@@ -24,7 +24,7 @@ lab.experiment('hapi-trailing-slash', () => {
         method: 'GET',
         path: '/no/slash',
         handler: (request, reply) => {
-          reply('welcome to the jungle');
+          reply('chinese democracy');
         }
       },
       {
@@ -80,23 +80,48 @@ lab.experiment('hapi-trailing-slash', () => {
     server.stop(done);
   });
 
-  lab.test(' "remove" /no/slash works normally', (done) => {
+  lab.test(' "remove" /no/slash when called correctly returns 200', (done) => {
     server.inject({
       method: 'get',
       url: '/no/slash'
     }, (result) => {
       Code.expect(result.statusCode).to.equal(200);
-      Code.expect(result.payload).to.equal('welcome to the jungle');
+      Code.expect(result.payload).to.equal('chinese democracy');
       done();
     });
   });
-  lab.test(' "remove" /no/slash/ redirects to /no/slash', (done) => {
+
+  lab.test(' "remove" /no/slash/ works normally if that route is specified', (done) => {
+    server.route({
+      path: '/no/slash/',
+      method: 'get',
+      handler(request, reply) {
+        return reply('chinese democracy');
+      }
+    });
+    server.inject({
+      method: 'get',
+      url: '/no/slash/'
+    }, (result) => {
+      Code.expect(result.statusCode).to.equal(200);
+      Code.expect(result.payload).to.equal('chinese democracy');
+      done();
+    });
+  });
+
+  lab.test(' "remove" /no/slash/ when called with trailing slash returns 301 Redirect to /no/slash', (done) => {
+    let called = 0;
+    server.ext('onRequest', (request, reply) => {
+      called++;
+      reply.continue();
+    });
     server.inject({
       method: 'get',
       url: '/no/slash/'
     }, (result) => {
       Code.expect(result.statusCode).to.equal(301);
       Code.expect(result.headers.location).to.equal('/no/slash');
+      Code.expect(called).to.equal(1);
       done();
     });
   });
@@ -110,10 +135,10 @@ lab.experiment('hapi-trailing-slash', () => {
       done();
     });
   });
-  lab.test(' "remove" /no/slash GET works normally ', (done) => {
+  lab.test(' "remove" /no/slash GET works normally with route params', (done) => {
     server.inject({
       method: 'get',
-      url: '/no/slash/velvet_revolver'
+      url: '/no/slash/velvet_revolver?p1=hi'
     }, (result) => {
       Code.expect(result.statusCode).to.equal(200);
       Code.expect(result.payload).to.equal('slither');
