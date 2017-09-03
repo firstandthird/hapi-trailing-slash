@@ -101,7 +101,7 @@ lab.experiment('hapi-trailing-slash', () => {
     });
     server.inject({
       method: 'get',
-      url: '/no/slash'
+      url: '/no/slash/'
     }, (result) => {
       Code.expect(result.statusCode).to.equal(200);
       Code.expect(result.payload).to.equal('chinese democracy');
