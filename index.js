@@ -23,39 +23,26 @@ module.exports = (server, options, allDone) => {
     return reply.redirect(redirectTo).code(options.statusCode);
   };
 
-  if (options.method === 'append') {
-    server.ext('onPreResponse', (request, reply) => {
-      const statusCode = request.response.output ? request.response.output.statusCode : request.response.statusCode;
-      // if the route was already found by hapi then just ignore it:
-      if (statusCode !== 404) {
-        return reply.continue();
-      }
-      const method = request.method.toLowerCase();
-      // before failing, first check if there's a slashed route we can redirect to:
-      if (['get', 'head'].indexOf(method) !== -1 && request.path[request.path.length - 1] !== '/') {
-        const slashedPath = `${request.path}/`;
-        return doRedirect(slashedPath, request, reply);
-      }
-      // otherwise it really is a 404:
+  // if (options.method === 'append') {
+  server.ext('onPreResponse', (request, reply) => {
+    const statusCode = request.response.output ? request.response.output.statusCode : request.response.statusCode;
+    // if the route was already found by hapi then just ignore it:
+    if (statusCode !== 404) {
       return reply.continue();
-    });
-  } else if (options.method === 'remove') {
-    server.ext('onPreResponse', (request, reply) => {
-      const statusCode = request.response.output ? request.response.output.statusCode : request.response.statusCode;
-      // if the route was already found by hapi then just ignore it:
-      if (statusCode !== 404) {
-        return reply.continue();
-      }
-      // before failing, check if there's an unslashed route we can redirect to:
-      const method = request.method.toLowerCase();
-      if (['get', 'head'].indexOf(method) !== -1 && request.path !== '/' && request.path[request.path.length - 1] === '/') {
-        const slashlessPath = request.path.replace(/\/$/, '');
-        return doRedirect(slashlessPath, request, reply);
-      }
-      // otherwise it really is a 404:
-      return reply.continue();
-    });
-  }
+    }
+    const method = request.method.toLowerCase();
+    // pick a condition checker based on either 'append' or 'remove' mode:
+    const condition = options.method === 'append' ? () => request.path[request.path.length - 1] !== '/' :
+      () => request.path !== '/' && request.path[request.path.length - 1] === '/';
+    // see if we need to do a redirect for either slashed/slashless path:
+    if (['get', 'head'].indexOf(method) !== -1 && condition()) {
+      // pick a redirection based on either 'append' or 'remove' mode:
+      const redirectPath = options.method === 'append' ? `${request.path}/` : request.path.replace(/\/$/, '');
+      return doRedirect(redirectPath, request, reply);
+    }
+    // otherwise it really is a 404:
+    return reply.continue();
+  });
   allDone();
 };
 
