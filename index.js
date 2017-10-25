@@ -36,6 +36,10 @@ module.exports = (server, options, allDone) => {
       () => request.path !== '/' && request.path[request.path.length - 1] === '/';
     // see if we need to do a redirect for either slashed/slashless path:
     if (['get', 'head'].indexOf(method) !== -1 && condition()) {
+      if (request.path.indexOf('.') !== -1) {
+        return reply.continue();
+      }
+
       // pick a redirection based on either 'append' or 'remove' mode:
       const redirectPath = options.method === 'append' ? `${request.path}/` : request.path.replace(/\/$/, '');
       return doRedirect(redirectPath, request, reply);

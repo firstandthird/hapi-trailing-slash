@@ -138,4 +138,14 @@ lab.experiment('hapi-trailing-slash', () => {
       done();
     });
   });
+
+  lab.test(' "append" /has/slash.png redirect is ignored ', (done) => {
+    server.inject({
+      method: 'get',
+      url: '/images/logo.png'
+    }, (result) => {
+      Code.expect(result.statusCode).to.equal(404);
+      done();
+    });
+  });
 });
