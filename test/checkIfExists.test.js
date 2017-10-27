@@ -24,7 +24,7 @@ lab.experiment('hapi-trailing-slash checkIfExists', () => {
         method: 'GET',
         path: '/has/slash/',
         handler: (request, reply) => {
-          reply('slither');
+          reply('slither').code(301);
         }
       },
     ]);
@@ -58,7 +58,7 @@ lab.experiment('hapi-trailing-slash checkIfExists', () => {
         method: 'get',
         url: '/has/slash/'
       }, (result2) => {
-        Code.expect(result2.statusCode).to.equal(200);
+        Code.expect(result2.statusCode).to.equal(301);
         done();
       });
     });
