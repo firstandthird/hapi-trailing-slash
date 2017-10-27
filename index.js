@@ -17,7 +17,7 @@ module.exports = (server, options, allDone) => {
       if (err) {
         return callback(false);
       }
-      return callback(res.statusCode === 200);
+      return callback(res.statusCode < 400);
     });
   };
 
