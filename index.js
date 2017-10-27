@@ -1,11 +1,25 @@
 'use strict';
 const useragent = require('useragent');
+const wreck = require('wreck');
+
 module.exports = (server, options, allDone) => {
   options = options || {};
   if (!options.method) {
     return allDone(new Error('hapi-trailing-slash plugin registered without specifiying which method to use'));
   }
   options.statusCode = options.statusCode || 301;
+
+  const redirectExists = (redirectPath, callback) => {
+    if (!options.checkIfExists) {
+      return callback(true);
+    }
+    wreck.request('head', redirectPath, {}, (err, res) => {
+      if (err) {
+        return callback(false);
+      }
+      return callback(res.statusCode === 200);
+    });
+  };
 
   const doRedirect = (path, request, reply) => {
     const redirectTo = request.url.search ? path + request.url.search : path;
@@ -39,10 +53,15 @@ module.exports = (server, options, allDone) => {
       if (request.path.indexOf('.') !== -1) {
         return reply.continue();
       }
-
       // pick a redirection based on either 'append' or 'remove' mode:
       const redirectPath = options.method === 'append' ? `${request.path}/` : request.path.replace(/\/$/, '');
-      return doRedirect(redirectPath, request, reply);
+      return redirectExists(redirectPath, (exists) => {
+        if (exists) {
+          doRedirect(redirectPath, request, reply);
+        } else {
+          return reply.continue();
+        }
+      });
     }
     // otherwise it really is a 404:
     return reply.continue();
