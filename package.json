@@ -29,6 +29,7 @@
     "lab": "^13.0.1"
   },
   "dependencies": {
-    "useragent": "^2.2.1"
+    "useragent": "^2.2.1",
+    "wreck": "^12.0.0"
   }
 }
