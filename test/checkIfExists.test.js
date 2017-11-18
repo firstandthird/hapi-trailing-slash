@@ -8,59 +8,51 @@ const theModule = require('../index.js');
 lab.experiment('hapi-trailing-slash checkIfExists', () => {
   let server;
 
-  lab.beforeEach((done) => {
+  lab.beforeEach(async() => {
     server = new Hapi.Server();
-    server.connection();
 
     server.route([
       {
         method: 'GET',
         path: '/no/slash',
-        handler: (request, reply) => {
-          reply('chinese democracy');
+        handler: (request, h) => {
+          return 'chinese democracy';
         }
       },
       {
         method: 'GET',
         path: '/has/slash/',
-        handler: (request, reply) => {
-          reply('slither').code(301);
+        handler: (request, h) => {
+          return h.redirect('slither');
         }
       },
     ]);
 
-    server.register({
-      register: theModule,
+    await server.register({
+      plugin: theModule,
       options: {
         checkIfExists: true,
         method: 'remove',
         verbose: true
       }
-    }, (err) => {
-      if (err) {
-        throw err;
-      }
-      server.start(done);
     });
+    await server.start(done);
   });
 
-  lab.afterEach((done) => {
-    server.stop(done);
+  lab.afterEach(async() => {
+    await server.stop();
   });
 
-  lab.test(' checkIfExists will do a HEAD check that the forward exists', (done) => {
-    server.inject({
+  lab.test(' checkIfExists will do a HEAD check that the forward exists', async() => {
+    const result = await server.inject({
       method: 'get',
       url: '/no/slash/'
-    }, (result) => {
-      Code.expect(result.statusCode).to.equal(404);
-      server.inject({
-        method: 'get',
-        url: '/has/slash/'
-      }, (result2) => {
-        Code.expect(result2.statusCode).to.equal(301);
-        done();
-      });
     });
+    Code.expect(result.statusCode).to.equal(404);
+    const result2 = await server.inject({
+      method: 'get',
+      url: '/has/slash/'
+    });
+    Code.expect(result2.statusCode).to.equal(301);
   });
 });

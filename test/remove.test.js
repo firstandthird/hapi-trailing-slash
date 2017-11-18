@@ -8,87 +8,79 @@ const theModule = require('../index.js');
 lab.experiment('hapi-trailing-slash', () => {
   let server;
 
-  lab.beforeEach((done) => {
+  lab.beforeEach(async() => {
     server = new Hapi.Server();
-    server.connection();
-
     server.route([
       {
         method: 'GET',
         path: '/',
-        handler: (request, reply) => {
-          reply('root');
+        handler: (request, h) => {
+          return 'root';
         }
       },
       {
         method: 'GET',
         path: '/no/slash',
-        handler: (request, reply) => {
-          reply('chinese democracy');
+        handler: (request, h) => {
+          return 'chinese democracy';
         }
       },
       {
         method: 'GET',
         path: '/no/slash/{band}',
-        handler: (request, reply) => {
+        handler: (request, h) => {
           if (request.params.band === 'gnr') {
-            reply('sweet child of mine ');
+            return 'sweet child of mine ';
           } else if (request.params.band === 'velvet_revolver') {
-            reply('slither');
+            return 'slither';
           } else {
-            reply('not found');
+            return 'not found';
           }
         }
       },
       {
         method: 'GET',
         path: '/has/slash/',
-        handler: (request, reply) => {
-          reply('slither');
+        handler: (request, h) => {
+          return 'slither';
         }
       },
       {
         method: 'GET',
         path: '/has/slash/{band}/',
-        handler: (request, reply) => {
+        handler: (request, h) => {
           if (request.params.band === 'gnr') {
-            reply('sweet child of mine ');
+            return 'sweet child of mine';
           } else if (request.params.band === 'velvet_revolver') {
-            reply('slither');
+            return 'slither';
           } else {
-            reply('not found');
+            return 'not found';
           }
         }
       }
     ]);
 
-    server.register({
-      register: theModule,
+    await server.register({
+      plugin: theModule,
       options: {
         method: 'remove',
         verbose: true
       }
-    }, (err) => {
-      if (err) {
-        throw err;
-      }
-      server.start(done);
     });
+    await server.start(done);
   });
 
-  lab.afterEach((done) => {
-    server.stop(done);
+  lab.afterEach(async() => {
+    await server.stop();
   });
 
-  lab.test(' "remove" /no/slash when called correctly returns 200', (done) => {
-    server.inject({
+  lab.test(' "remove" /no/slash when called correctly returns 200', async() => {
+    const result = await server.inject({
       method: 'get',
       url: '/no/slash'
-    }, (result) => {
-      Code.expect(result.statusCode).to.equal(200);
-      Code.expect(result.payload).to.equal('chinese democracy');
-      done();
     });
+    Code.expect(result.statusCode).to.equal(200);
+    Code.expect(result.payload).to.equal('chinese democracy');
   });
 
   lab.test(' "remove" /no/slash/ works normally if that route is specified', (done) => {
@@ -96,84 +88,70 @@ lab.experiment('hapi-trailing-slash', () => {
       path: '/no/slash/',
       method: 'get',
       handler(request, reply) {
-        return reply('chinese democracy');
+        return 'chinese democracy';
       }
     });
-    server.inject({
+    const result = await server.inject({
       method: 'get',
       url: '/no/slash/'
-    }, (result) => {
-      Code.expect(result.statusCode).to.equal(200);
-      Code.expect(result.payload).to.equal('chinese democracy');
-      done();
     });
+    Code.expect(result.statusCode).to.equal(200);
+    Code.expect(result.payload).to.equal('chinese democracy');
   });
 
-  lab.test(' "remove" /no/slash/ when called with trailing slash returns 301 Redirect to /no/slash', (done) => {
+  lab.test(' "remove" /no/slash/ when called with trailing slash returns 301 Redirect to /no/slash', async() => {
     let called = 0;
     server.ext('onRequest', (request, reply) => {
       called++;
       reply.continue();
     });
-    server.inject({
+    const result = server.inject({
       method: 'get',
       url: '/no/slash/'
-    }, (result) => {
-      Code.expect(result.statusCode).to.equal(301);
-      Code.expect(result.headers.location).to.equal('/no/slash');
-      Code.expect(called).to.equal(1);
-      done();
     });
+    Code.expect(result.statusCode).to.equal(301);
+    Code.expect(result.headers.location).to.equal('/no/slash');
+    Code.expect(called).to.equal(1);
   });
-  lab.test(' "remove" HEAD /no/slash/ redirects to /no/slash', (done) => {
-    server.inject({
+  lab.test(' "remove" HEAD /no/slash/ redirects to /no/slash', async() => {
+    const result = await server.inject({
       method: 'head',
       url: '/no/slash/'
-    }, (result) => {
-      Code.expect(result.statusCode).to.equal(301);
-      Code.expect(result.headers.location).to.equal('/no/slash');
-      done();
     });
+    Code.expect(result.statusCode).to.equal(301);
+    Code.expect(result.headers.location).to.equal('/no/slash');
   });
-  lab.test(' "remove" /no/slash GET works normally with route params', (done) => {
-    server.inject({
+  lab.test(' "remove" /no/slash GET works normally with route params', async() => {
+    const result = await server.inject({
       method: 'get',
       url: '/no/slash/velvet_revolver?p1=hi'
-    }, (result) => {
-      Code.expect(result.statusCode).to.equal(200);
-      Code.expect(result.payload).to.equal('slither');
-      done();
     });
+    Code.expect(result.statusCode).to.equal(200);
+    Code.expect(result.payload).to.equal('slither');
   });
 
-  lab.test(' "remove" /no/slash GET redirects with url params ', (done) => {
-    server.inject({
+  lab.test(' "remove" /no/slash GET redirects with url params ', async() => {
+    const result = await server.inject({
       method: 'get',
       url: '/no/slash/velvet_revolver/?p1=hi'
-    }, (result) => {
-      Code.expect(result.statusCode).to.equal(301);
-      Code.expect(result.headers.location).to.equal('/no/slash/velvet_revolver?p1=hi');
-      done();
     });
+    Code.expect(result.statusCode).to.equal(301);
+    Code.expect(result.headers.location).to.equal('/no/slash/velvet_revolver?p1=hi');
   });
-  lab.test(' "remove" /no/slash POST is ignored with url params ', (done) => {
-    server.inject({
+  lab.test(' "remove" /no/slash POST is ignored with url params ', async() => {
+    const result = await server.inject({
       method: 'post',
       url: '/no/slash/velvet_revolver/?p1=hi'
-    }, (result) => {
-      Code.expect(result.statusCode).to.equal(404);
-      done();
     });
+    Code.expect(result.statusCode).to.equal(404);
   });
 
-  lab.test(' "remove" / (root path) is not stripped ', (done) => {
-    server.inject({
+  lab.test(' "remove" / (root path) is not stripped ', async() => {
+    const result = await server.inject({
       method: 'get',
       url: '/'
-    }, (result) => {
-      Code.expect(result.statusCode).to.equal(200);
-      Code.expect(result.payload).to.equal('root');
-      done();
     });
+    Code.expect(result.statusCode).to.equal(200);
+    Code.expect(result.payload).to.equal('root');
   });
 });

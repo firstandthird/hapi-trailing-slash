@@ -8,144 +8,122 @@ const theModule = require('../index.js');
 lab.experiment('hapi-trailing-slash', () => {
   let server;
 
-  lab.beforeEach((done) => {
+  lab.beforeEach(async() => {
     server = new Hapi.Server();
-    server.connection();
-
     server.route([
       {
         method: 'GET',
         path: '/no/slash',
-        handler: (request, reply) => {
-          reply('welcome to the jungle');
+        handler: (request, h) => {
+          return 'welcome to the jungle';
         }
       },
       {
         method: 'GET',
         path: '/has/slash/',
-        handler: (request, reply) => {
-          reply('slither');
+        handler: (request, h) => {
+          return 'slither';
         }
       },
       {
         method: 'GET',
         path: '/has/slash/{band}/',
-        handler: (request, reply) => {
+        handler: (request, h) => {
           if (request.params.band === 'gnr') {
-            reply('sweet child of mine ');
+            return 'sweet child of mine ';
           } else if (request.params.band === 'velvet_revolver') {
-            reply('slither');
+            return 'slither';
           } else {
-            reply('not found');
+            return 'not found';
           }
         }
       }
     ]);
 
-    server.register({
-      register: theModule,
+    const response = await server.register({
+      plugin: theModule,
       options: {
         method: 'append',
         verbose: true
       }
-    }, (err) => {
-      if (err) {
-        throw err;
-      }
-      server.start(done);
     });
+    await server.start();
   });
 
-  lab.afterEach((done) => {
-    server.stop(done);
+  lab.afterEach(async() => {
+    await server.stop();
   });
 
-  lab.test(' "append"  /has/slash/ works normally', (done) => {
-    server.inject({
+  lab.test(' "append"  /has/slash/ works normally', async() => {
+    const result = await server.inject({
       method: 'get',
       url: '/has/slash/'
-    }, (result) => {
-      Code.expect(result.statusCode).to.equal(200);
-      Code.expect(result.payload).to.equal('slither');
-      done();
     });
+    Code.expect(result.statusCode).to.equal(200);
+    Code.expect(result.payload).to.equal('slither');
   });
-  lab.test(' "append" /has/slash works normally if that route is specified', (done) => {
+  lab.test(' "append" /has/slash works normally if that route is specified', async() => {
     server.route({
       path: '/has/slash',
       method: 'get',
-      handler(request, reply) {
-        return reply('slither');
+      handler(request, h) {
+        return 'slither';
       }
     });
-    server.inject({
+    const result = await server.inject({
       method: 'get',
       url: '/has/slash'
-    }, (result) => {
-      Code.expect(result.statusCode).to.equal(200);
-      Code.expect(result.payload).to.equal('slither');
-      done();
     });
+    Code.expect(result.statusCode).to.equal(200);
+    Code.expect(result.payload).to.equal('slither');
   });
 
-  lab.test(' "append" GET /has/slash redirects to /has/slash/', (done) => {
-    server.inject({
+  lab.test(' "append" GET /has/slash redirects to /has/slash/', async() => {
+    const result = await server.inject({
       method: 'get',
       url: '/has/slash'
-    }, (result) => {
-      Code.expect(result.statusCode).to.equal(301);
-      Code.expect(result.headers.location).to.equal('/has/slash/');
-      done();
     });
+    Code.expect(result.statusCode).to.equal(301);
+    Code.expect(result.headers.location).to.equal('/has/slash/');
   });
-  lab.test(' "append" HEAD /has/slash redirects to /has/slash/', (done) => {
-    server.inject({
+  lab.test(' "append" HEAD /has/slash redirects to /has/slash/', async() => {
+    const result = await server.inject({
       method: 'head',
       url: '/has/slash'
-    }, (result) => {
-      Code.expect(result.statusCode).to.equal(301);
-      Code.expect(result.headers.location).to.equal('/has/slash/');
-      done();
     });
+    Code.expect(result.statusCode).to.equal(301);
+    Code.expect(result.headers.location).to.equal('/has/slash/');
   });
-  lab.test(' "append"  /has/slash/ GET works with url params', (done) => {
-    server.inject({
+  lab.test(' "append"  /has/slash/ GET works with url params', async() => {
+    const result = await server.inject({
       method: 'get',
       url: '/has/slash/velvet_revolver/'
-    }, (result) => {
-      Code.expect(result.statusCode).to.equal(200);
-      Code.expect(result.payload).to.equal('slither');
-      done();
     });
+    Code.expect(result.statusCode).to.equal(200);
+    Code.expect(result.payload).to.equal('slither');
   });
 
-  lab.test(' "append" /has/slash GET redirects with url params ', (done) => {
-    server.inject({
+  lab.test(' "append" /has/slash GET redirects with url params ', async() => {
+    const result = await server.inject({
       method: 'get',
       url: '/has/slash/velvet_revolver?temp=hi'
-    }, (result) => {
-      Code.expect(result.statusCode).to.equal(301);
-      Code.expect(result.headers.location).to.equal('/has/slash/velvet_revolver/?temp=hi');
-      done();
     });
+    Code.expect(result.statusCode).to.equal(301);
+    Code.expect(result.headers.location).to.equal('/has/slash/velvet_revolver/?temp=hi');
   });
-  lab.test(' "append" /has/slash POST redirect is ignored ', (done) => {
-    server.inject({
+  lab.test(' "append" /has/slash POST redirect is ignored ', async() => {
+    const result = await server.inject({
       method: 'post',
       url: '/has/slash/velvet_revolver?temp=hi'
-    }, (result) => {
-      Code.expect(result.statusCode).to.equal(404);
-      done();
     });
+    Code.expect(result.statusCode).to.equal(404);
   });
 
-  lab.test(' "append" /has/slash.png redirect is ignored ', (done) => {
-    server.inject({
+  lab.test(' "append" /has/slash.png redirect is ignored ', async() => {
+    const result = await server.inject({
       method: 'get',
       url: '/images/logo.png'
-    }, (result) => {
-      Code.expect(result.statusCode).to.equal(404);
-      done();
     });
+    Code.expect(result.statusCode).to.equal(404);
   });
 });
