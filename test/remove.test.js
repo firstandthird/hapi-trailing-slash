@@ -67,7 +67,7 @@ lab.experiment('hapi-trailing-slash', () => {
         verbose: true
       }
     });
-    await server.start(done);
+    await server.start();
   });
 
   lab.afterEach(async() => {
@@ -83,7 +83,7 @@ lab.experiment('hapi-trailing-slash', () => {
     Code.expect(result.payload).to.equal('chinese democracy');
   });
 
-  lab.test(' "remove" /no/slash/ works normally if that route is specified', (done) => {
+  lab.test(' "remove" /no/slash/ works normally if that route is specified', async() => {
     server.route({
       path: '/no/slash/',
       method: 'get',
@@ -101,11 +101,11 @@ lab.experiment('hapi-trailing-slash', () => {
 
   lab.test(' "remove" /no/slash/ when called with trailing slash returns 301 Redirect to /no/slash', async() => {
     let called = 0;
-    server.ext('onRequest', (request, reply) => {
+    server.ext('onRequest', (request, h) => {
       called++;
-      reply.continue();
+      return h.continue;
     });
-    const result = server.inject({
+    const result = await server.inject({
       method: 'get',
       url: '/no/slash/'
     });
@@ -113,6 +113,7 @@ lab.experiment('hapi-trailing-slash', () => {
     Code.expect(result.headers.location).to.equal('/no/slash');
     Code.expect(called).to.equal(1);
   });
+
   lab.test(' "remove" HEAD /no/slash/ redirects to /no/slash', async() => {
     const result = await server.inject({
       method: 'head',
@@ -121,6 +122,7 @@ lab.experiment('hapi-trailing-slash', () => {
     Code.expect(result.statusCode).to.equal(301);
     Code.expect(result.headers.location).to.equal('/no/slash');
   });
+
   lab.test(' "remove" /no/slash GET works normally with route params', async() => {
     const result = await server.inject({
       method: 'get',
@@ -138,6 +140,7 @@ lab.experiment('hapi-trailing-slash', () => {
     Code.expect(result.statusCode).to.equal(301);
     Code.expect(result.headers.location).to.equal('/no/slash/velvet_revolver?p1=hi');
   });
+
   lab.test(' "remove" /no/slash POST is ignored with url params ', async() => {
     const result = await server.inject({
       method: 'post',

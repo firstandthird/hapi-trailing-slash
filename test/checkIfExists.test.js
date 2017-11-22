@@ -9,7 +9,7 @@ lab.experiment('hapi-trailing-slash checkIfExists', () => {
   let server;
 
   lab.beforeEach(async() => {
-    server = new Hapi.Server();
+    server = new Hapi.Server({ port: 8080 });
 
     server.route([
       {
@@ -36,14 +36,14 @@ lab.experiment('hapi-trailing-slash checkIfExists', () => {
         verbose: true
       }
     });
-    await server.start(done);
+    await server.start();
   });
 
   lab.afterEach(async() => {
     await server.stop();
   });
 
-  lab.test(' checkIfExists will do a HEAD check that the forward exists', async() => {
+  lab.test(' checkIfExists will check the route table to verify the forward exists', async() => {
     const result = await server.inject({
       method: 'get',
       url: '/no/slash/'

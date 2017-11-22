@@ -9,12 +9,18 @@ const register = async (server, options) => {
   }
   options.statusCode = options.statusCode || 301;
 
-  const redirectExists = (redirectPath) => {
+  const redirectExists = async (redirectPath) => {
     if (!options.checkIfExists) {
       return Promise.resolve(true);
     }
-    { res, payload } = wreck.request('head', redirectPath, {});
-    return Promise.resolve(res.statusCode < 400);
+    try {
+      const { res, payload } = await wreck.request('head', redirectPath);
+      return Promise.resolve(res.statusCode < 400);
+    } catch (e) {
+      console.log('why it returns error?')
+      console.log(e)
+      return Promise.resolve(false);
+    }
   };
 
   const doRedirect = (path, request, h) => {
@@ -35,8 +41,7 @@ const register = async (server, options) => {
     .code(options.statusCode);
   };
 
-  // if (options.method === 'append') {
-  server.ext('onPreResponse', (request, h) => {
+  server.ext('onPreResponse', async(request, h) => {
     const statusCode = request.response.output ? request.response.output.statusCode : request.response.statusCode;
     // if the route was already found by hapi then just ignore it:
     if (statusCode !== 404) {
@@ -53,13 +58,12 @@ const register = async (server, options) => {
       }
       // pick a redirection based on either 'append' or 'remove' mode:
       const redirectPath = options.method === 'append' ? `${request.path}/` : request.path.replace(/\/$/, '');
-      return redirectExists(redirectPath, (exists) => {
-        if (exists) {
-          doRedirect(redirectPath, request, h);
-        } else {
-          return h.continue;
-        }
-      });
+      const exists = await redirectExists(redirectPath);
+      if (exists) {
+        return doRedirect(redirectPath, request, h);
+      } else {
+        return h.continue;
+      }
     }
     // otherwise it really is a 404:
     return h.continue;
