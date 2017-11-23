@@ -17,8 +17,6 @@ const register = async (server, options) => {
       const { res, payload } = await wreck.request('head', redirectPath);
       return Promise.resolve(res.statusCode < 400);
     } catch (e) {
-      console.log('why it returns error?')
-      console.log(e)
       return Promise.resolve(false);
     }
   };
@@ -36,9 +34,14 @@ const register = async (server, options) => {
         to: redirectTo
       });
     }
-    return h
-    .redirect(redirectTo)
-    .code(options.statusCode);
+    const response = h.redirect(redirectTo)
+    // redirects in hapi 17 are either permanent() or temporary()
+    if (options.statusCode === 301) {
+      return response.permanent();
+    }
+    else {
+      return response.temporary();
+    }
   };
 
   server.ext('onPreResponse', async(request, h) => {
