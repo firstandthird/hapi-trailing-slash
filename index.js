@@ -5,7 +5,7 @@ const wreck = require('wreck');
 const register = async (server, options) => {
   options = options || {};
   if (!options.method) {
-    return Promise.reject(new Error('hapi-trailing-slash plugin registered without specifiying which method to use'));
+    throw new Error('hapi-trailing-slash plugin registered without specifiying which method to use');
   }
   options.statusCode = options.statusCode || 301;
 
