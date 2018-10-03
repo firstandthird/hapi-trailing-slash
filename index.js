@@ -24,15 +24,18 @@ const register = async (server, options) => {
   const doRedirect = (path, request, h) => {
     const redirectTo = request.url.search ? path + request.url.search : path;
     if (options.verbose) {
-      server.log(['hapi-trailing-slash', 'redirect'], {
+      const packet = {
         remoteAddress: `${request.info.remoteAddress}:${request.info.remotePort}`,
         host: request.info.host,
         userAgent: request.headers['user-agent'],
         browser: useragent.parse(request.headers['user-agent']).toString(),
-        referrer: request.info.referrer,
         from: request.path,
         to: redirectTo
-      });
+      };
+      if (request.info.referrer) {
+        packet.referrer = request.info.referrer;
+      }
+      server.log(['hapi-trailing-slash', 'redirect'], packet);
     }
     const response = h.redirect(redirectTo)
     // redirects in hapi 17 are either permanent() or temporary()
