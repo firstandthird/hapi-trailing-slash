@@ -1,8 +1,8 @@
 'use strict';
-const Code = require('code');   // assertion library
-const Lab = require('lab');
+const Code = require('@hapi/code');   // assertion library
+const Lab = require('@hapi/lab');
 const lab = exports.lab = Lab.script();
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const theModule = require('../index.js');
 
 lab.test(' checkIfExists will check the route table to verify the forward exists', async() => {
