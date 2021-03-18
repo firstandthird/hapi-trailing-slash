@@ -21,15 +21,15 @@
   },
   "homepage": "https://github.com/firstandthird/hapi-trailing-slash#readme",
   "devDependencies": {
-    "code": "^4.1.0",
+    "@hapi/code": "^6.0.0",
+    "@hapi/hapi": "^18.4.0",
+    "@hapi/lab": "^20.2.2",
     "eslint": "^3.19.0",
     "eslint-config-firstandthird": "^3.3.0",
-    "eslint-plugin-import": "^2.1.0",
-    "hapi": "^17.8.5",
-    "lab": "^15.5.0"
+    "eslint-plugin-import": "^2.1.0"
   },
   "dependencies": {
-    "useragent": "^2.3.0",
-    "wreck": "^14.2.0"
+    "@hapi/wreck": "^15.1.0",
+    "useragent": "^2.3.0"
   }
 }

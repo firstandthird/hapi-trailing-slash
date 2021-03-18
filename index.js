@@ -1,6 +1,6 @@
 'use strict';
 const useragent = require('useragent');
-const wreck = require('wreck');
+const wreck = require('@hapi/wreck');
 
 const register = async (server, options) => {
   options = options || {};
